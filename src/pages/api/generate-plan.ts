@@ -6,45 +6,96 @@ const openai = new OpenAI({
 });
 
 const getTemplatePrompt = (template: 'next' | 'vercel-ai' = 'next') => {
-  const basePrompt = `You are an expert project manager and technical lead. Transform the following idea into a comprehensive, structured project plan in Markdown format.`;
+  const basePrompt = `You are an expert project manager and technical lead specializing in creating EXECUTABLE project plans. Your goal is to transform ideas into actionable plans with specific user stories, clear acceptance criteria, and tasks that can be marked as complete.
+
+CRITICAL: Focus on creating a plan that a developer can immediately execute, with each task having clear "done" criteria.`;
 
   const templateSpecificInfo = {
     next: `
-This project will be created using create-vibe-code-app with the Next.js template, which includes:
-- Next.js 14 with App Router
-- TypeScript for type safety
-- Tailwind CSS for styling
+TECHNICAL CONTEXT: This project will be created using create-vibe-code-app with the Next.js template:
+- Next.js 14 with App Router and TypeScript
+- Tailwind CSS for styling 
 - ESLint & Prettier configuration
 - AI assistant configuration (.cursor/rules/)
+- Modern React patterns and hooks
 
-Optimize your technical recommendations for this modern Next.js stack.`,
+OPTIMIZATION: Structure your recommendations around this Next.js stack. Include specific file paths, component structures, and Next.js best practices.`,
     'vercel-ai': `
-This project will be created using create-vibe-code-app with the Vercel AI template, which includes:
-- Next.js 14 with App Router
-- TypeScript for type safety
+TECHNICAL CONTEXT: This project will be created using create-vibe-code-app with the Vercel AI template:
+- Next.js 14 with App Router and TypeScript
 - Tailwind CSS for styling
-- Vercel AI SDK pre-configured
-- OpenAI integration ready
-- Streaming chat responses
+- Vercel AI SDK pre-configured with OpenAI
+- Streaming chat responses and AI hooks
 - AI assistant configuration (.cursor/rules/)
 
-Focus on AI-powered features and include specific recommendations for OpenAI integration, function calling, and AI user experience patterns.`,
+OPTIMIZATION: Focus heavily on AI-powered features. Include specific recommendations for OpenAI integration, prompt engineering, function calling, RAG patterns, and AI UX best practices.`,
   };
 
   return `${basePrompt}
 
 ${templateSpecificInfo[template]}
 
-Your response should be ONLY the markdown content with these sections:
-1. **Project Overview** - Brief description and goals
-2. **Scope** - What's included and what's not  
-3. **Key Features** - Main features to implement (emphasize AI features for vercel-ai template)
-4. **Technical Requirements** - Technology stack and infrastructure (mention the chosen template)
-5. **Milestones** - Major phases with timeline estimates
-6. **Risk Assessment** - Potential challenges and mitigation strategies
-7. **Next Steps** - Immediate actions to take (include environment setup for vercel-ai template)
+STRUCTURE YOUR RESPONSE with these EXACT sections:
 
-Keep it concise but comprehensive. Use bullet points, tables, and clear formatting. The plan should be actionable and realistic for the selected template.
+## 1. Project Overview
+- **Goal**: One clear sentence describing the main objective
+- **Success Metrics**: 2-3 measurable outcomes
+- **Timeline**: Estimated completion time
+
+## 2. User Stories & Acceptance Criteria
+Create 5-8 user stories in this format:
+**US-01: [User Story Title]**
+- **As a** [user type], **I want** [functionality] **so that** [benefit]
+- **Acceptance Criteria:**
+  - [ ] Specific, testable requirement 1
+  - [ ] Specific, testable requirement 2
+  - [ ] Specific, testable requirement 3
+- **Definition of Done:** Clear completion criteria
+
+## 3. Technical Implementation Plan
+Break down into specific, executable tasks:
+
+### Phase 1: Foundation (Week 1)
+- [ ] **Task**: Set up project structure
+  - **Details**: Create specific folders/files
+  - **Done when**: All base files created and running
+- [ ] **Task**: Configure [specific technology]
+  - **Details**: Exact configuration steps
+  - **Done when**: Feature works as expected
+
+### Phase 2: Core Features (Week 2)
+- [ ] **Task**: Implement [specific feature]
+  - **Details**: Exact components/functions to build
+  - **Done when**: Feature passes specific tests
+
+### Phase 3: Polish & Deploy (Week 3)
+- [ ] **Task**: Add [specific enhancement]
+  - **Details**: Exact implementation requirements
+  - **Done when**: Meets specific criteria
+
+## 4. Technical Architecture
+- **File Structure**: Key directories and files to create
+- **Key Components**: List 3-5 main React components with their responsibilities
+- **API Endpoints**: Specific routes and their functions (if applicable)
+- **Database Schema**: Tables/collections needed (if applicable)
+
+## 5. Risk Assessment & Mitigation
+| Risk | Impact | Probability | Mitigation Strategy |
+|------|---------|-------------|-------------------|
+| [Specific risk] | High/Med/Low | High/Med/Low | [Actionable solution] |
+
+## 6. Next Steps (Immediate Actions)
+1. **First 30 minutes**: [Specific setup task]
+2. **First day**: [Specific development milestone] 
+3. **First week**: [Specific feature completion]
+
+REQUIREMENTS:
+- Use checkboxes [ ] for all actionable items
+- Be specific about file names, component names, and implementation details
+- Include actual code examples where helpful
+- Make each task small enough to complete in 1-4 hours
+- Ensure every user story has 3-5 testable acceptance criteria
+- Focus on ${template === 'vercel-ai' ? 'AI-powered features and OpenAI integration' : 'modern web development patterns'}
 
 User idea: `;
 };
@@ -85,7 +136,7 @@ export default async function handler(
     const prompt = getTemplatePrompt(template as 'next' | 'vercel-ai');
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: 'gpt-4.1-mini',
       messages: [
         {
           role: 'user',

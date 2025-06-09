@@ -58,30 +58,34 @@ const HomePage: React.FC = () => {
         />
       </Head>
 
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-        {/* Header */}
-        <header className="border-b border-gray-200 bg-white/80 backdrop-blur-sm">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        {/* Modern Header */}
+        <header className="bg-white/70 backdrop-blur-xl border-b border-white/20 shadow-lg">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-4">
-              <div className="flex items-center space-x-2">
-                <div className="text-2xl">🚀</div>
-                <h1 className="text-xl font-bold text-gray-900">
-                  ProjectPlan.ai
-                </h1>
-                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                  v2.0
-                </span>
+            <div className="flex justify-between items-center py-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl shadow-lg">
+                  <span className="text-2xl">🚀</span>
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    ProjectPlan.ai
+                  </h1>
+                  <span className="text-xs bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 px-3 py-1 rounded-full font-bold">
+                    v2.0
+                  </span>
+                </div>
               </div>
-              <nav className="hidden sm:flex space-x-6">
+              <nav className="hidden sm:flex items-center gap-6">
                 <a
                   href="https://www.npmjs.com/package/create-vibe-code-app"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-600 hover:text-gray-900 transition-colors flex items-center space-x-1"
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-300 font-medium shadow-lg hover:shadow-orange-500/25 transform hover:scale-105"
                 >
                   <span>CLI Tool</span>
                   <svg
-                    className="w-3 h-3"
+                    className="w-4 h-4"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -99,7 +103,7 @@ const HomePage: React.FC = () => {
                 </a>
                 <a
                   href="#"
-                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                  className="text-gray-600 hover:text-blue-600 transition-colors font-medium"
                 >
                   Examples
                 </a>
@@ -113,38 +117,136 @@ const HomePage: React.FC = () => {
           <ProjectPlanGenerator initialPlan={initialPlan} />
         </main>
 
-        {/* Footer */}
-        <footer className="bg-white border-t border-gray-200 mt-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-              <div className="flex items-center space-x-2">
-                <div className="text-lg">🚀</div>
-                <span className="text-gray-600">ProjectPlan.ai v2.0</span>
+        {/* Modern Footer */}
+        <footer className="bg-white/70 backdrop-blur-xl border-t border-white/20 mt-16 shadow-lg">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Brand Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl shadow-lg">
+                    <span className="text-xl">🚀</span>
+                  </div>
+                  <div>
+                    <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                      ProjectPlan.ai v2.0
+                    </span>
+                  </div>
+                </div>
+                <p className="text-gray-600 leading-relaxed">
+                  Transform any idea into a comprehensive project plan in
+                  seconds. Built for AI-driven development workflows.
+                </p>
               </div>
-              <div className="flex items-center space-x-6 text-sm text-gray-500">
-                <span>Built for AI-driven development</span>
-                <a
-                  href="https://www.npmjs.com/package/create-vibe-code-app"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-gray-700 transition-colors"
-                >
-                  CLI Tool
-                </a>
-                <a href="#" className="hover:text-gray-700 transition-colors">
-                  Privacy
-                </a>
-                <a href="#" className="hover:text-gray-700 transition-colors">
-                  Terms
-                </a>
+
+              {/* Links Section */}
+              <div className="space-y-4">
+                <h3 className="font-bold text-gray-900 text-lg">Resources</h3>
+                <div className="space-y-2">
+                  <a
+                    href="https://www.npmjs.com/package/create-vibe-code-app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-gray-600 hover:text-blue-600 transition-colors"
+                  >
+                    CLI Documentation
+                  </a>
+                  <a
+                    href="#"
+                    className="block text-gray-600 hover:text-blue-600 transition-colors"
+                  >
+                    Examples
+                  </a>
+                  <a
+                    href="#"
+                    className="block text-gray-600 hover:text-blue-600 transition-colors"
+                  >
+                    API Reference
+                  </a>
+                </div>
+              </div>
+
+              {/* Features Section */}
+              <div className="space-y-4">
+                <h3 className="font-bold text-gray-900 text-lg">Features</h3>
+                <div className="space-y-2 text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <svg
+                      className="w-4 h-4 text-green-500"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    AI-Powered Planning
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg
+                      className="w-4 h-4 text-green-500"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    CLI Integration
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg
+                      className="w-4 h-4 text-green-500"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    No Sign-up Required
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <svg
+                      className="w-4 h-4 text-green-500"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Instant Sharing
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="mt-4 pt-4 border-t border-gray-100 text-center text-sm text-gray-400">
-              <p>
-                Generate project plans and create projects instantly with the
-                CLI tool. Perfect for rapid prototyping and AI-driven
-                development.
-              </p>
+
+            <div className="mt-8 pt-8 border-t border-gray-200/50">
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div className="flex items-center gap-6 text-sm text-gray-500">
+                  <a href="#" className="hover:text-gray-700 transition-colors">
+                    Privacy Policy
+                  </a>
+                  <a href="#" className="hover:text-gray-700 transition-colors">
+                    Terms of Service
+                  </a>
+                  <a href="#" className="hover:text-gray-700 transition-colors">
+                    Support
+                  </a>
+                </div>
+                <div className="text-sm text-gray-500">
+                  © 2024 ProjectPlan.ai. Built with ❤️ for developers.
+                </div>
+              </div>
             </div>
           </div>
         </footer>
