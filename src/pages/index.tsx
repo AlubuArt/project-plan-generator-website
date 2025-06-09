@@ -112,13 +112,6 @@ const HomePage: React.FC = () => {
                     />
                   </svg>
                 </a>
-                <Link
-                  href="/mcp"
-                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-300 font-medium shadow-lg hover:shadow-purple-500/25 transform hover:scale-105"
-                >
-                  <span>🤖</span>
-                  <span>AI Agents</span>
-                </Link>
               </nav>
             </div>
           </div>
@@ -147,7 +140,7 @@ const HomePage: React.FC = () => {
                 </div>
                 <p className="text-gray-600 leading-relaxed">
                   Transform any idea into a comprehensive project plan in
-                  seconds. Built for AI-driven development workflows.
+                  seconds. Built for developers who move fast.
                 </p>
               </div>
 
@@ -163,14 +156,8 @@ const HomePage: React.FC = () => {
                   >
                     CLI Documentation
                   </a>
-                  <Link
-                    href="/mcp"
-                    className="block text-gray-600 hover:text-blue-600 transition-colors"
-                  >
-                    MCP Integration
-                  </Link>
                   <a
-                    href="https://github.com/modelcontextprotocol/typescript-sdk"
+                    href="https://docs.openai.com/api-reference"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block text-gray-600 hover:text-blue-600 transition-colors"
@@ -197,20 +184,6 @@ const HomePage: React.FC = () => {
                       />
                     </svg>
                     AI-Powered Planning
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <svg
-                      className="w-4 h-4 text-green-500"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    MCP Integration
                   </div>
                   <div className="flex items-center gap-2">
                     <svg
@@ -272,12 +245,6 @@ const HomePage: React.FC = () => {
                     className="hover:text-gray-700 transition-colors"
                   >
                     Terms of Service
-                  </Link>
-                  <Link
-                    href="/mcp"
-                    className="hover:text-gray-700 transition-colors"
-                  >
-                    MCP Integration
                   </Link>
                 </div>
                 <div className="text-sm text-gray-500">

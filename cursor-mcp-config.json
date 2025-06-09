@@ -1,7 +1,0 @@
-{
-    "mcpServers": {
-        "project-plan-generator": {
-            "serverLink": "https://project-plan-generator-website.vercel.app/api/mcp"
-        }
-    }
-}

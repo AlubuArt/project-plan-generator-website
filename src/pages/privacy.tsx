@@ -202,28 +202,7 @@ const PrivacyPolicy: React.FC = () => {
 
               <section className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  6. Model Context Protocol (MCP)
-                </h2>
-                <p className="text-gray-700 leading-relaxed mb-4">
-                  Our service supports MCP integration, allowing AI agents to
-                  interact with our API. When using MCP:
-                </p>
-                <ul className="list-disc pl-6 text-gray-700 space-y-2">
-                  <li>AI agents can generate project plans programmatically</li>
-                  <li>The same privacy protections apply to MCP requests</li>
-                  <li>
-                    No additional data is stored beyond normal service usage
-                  </li>
-                  <li>
-                    Session isolation ensures requests from different agents
-                    remain separate
-                  </li>
-                </ul>
-              </section>
-
-              <section className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  7. Data Security
+                  6. Data Security
                 </h2>
                 <p className="text-gray-700 leading-relaxed mb-4">
                   We implement appropriate technical and organizational security
@@ -240,7 +219,7 @@ const PrivacyPolicy: React.FC = () => {
 
               <section className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  8. Your Rights and Choices
+                  7. Your Rights and Choices
                 </h2>
                 <p className="text-gray-700 leading-relaxed mb-4">
                   You have the following rights regarding your information:
@@ -267,7 +246,7 @@ const PrivacyPolicy: React.FC = () => {
 
               <section className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  9. Children&apos;s Privacy
+                  8. Children&apos;s Privacy
                 </h2>
                 <p className="text-gray-700 leading-relaxed mb-4">
                   Our service is not intended for children under 13 years of
@@ -280,7 +259,7 @@ const PrivacyPolicy: React.FC = () => {
 
               <section className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  10. International Data Transfers
+                  9. International Data Transfers
                 </h2>
                 <p className="text-gray-700 leading-relaxed mb-4">
                   Your information may be transferred to and processed in
@@ -292,7 +271,7 @@ const PrivacyPolicy: React.FC = () => {
 
               <section className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  11. Changes to This Privacy Policy
+                  10. Changes to This Privacy Policy
                 </h2>
                 <p className="text-gray-700 leading-relaxed mb-4">
                   We may update this Privacy Policy from time to time. We will
@@ -305,7 +284,7 @@ const PrivacyPolicy: React.FC = () => {
 
               <section className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                  12. Contact Us
+                  11. Contact Us
                 </h2>
                 <p className="text-gray-700 leading-relaxed mb-4">
                   If you have any questions about this Privacy Policy or our

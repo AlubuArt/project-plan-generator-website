@@ -77,9 +77,6 @@ const TermsOfService: React.FC = () => {
                   <li>AI-powered project plan generation</li>
                   <li>Support for Next.js and Vercel AI templates</li>
                   <li>Shareable project plans via URL encoding</li>
-                  <li>
-                    Model Context Protocol (MCP) integration for AI agents
-                  </li>
                   <li>CLI tool integration with create-vibe-code-app</li>
                 </ul>
               </section>
