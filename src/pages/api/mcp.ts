@@ -608,15 +608,15 @@ src/
   return server;
 }
 
-// Store for server instances
-const servers = new Map<string, Server>();
+// Store for server instances and their state
+const servers = new Map<string, { server: Server; initialized: boolean }>();
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   // Simple health check endpoint
-  if (req.method === 'GET' && req.url === '/api/mcp') {
+  if (req.method === 'GET') {
     return res.status(200).json({
       status: 'healthy',
       serverInfo: {
@@ -676,18 +676,19 @@ export default async function handler(
     const sessionId =
       (req.headers['mcp-session-id'] as string) ||
       (req.headers['x-session-id'] as string) ||
-      `cursor-${Date.now()}`;
+      'default-session';
 
     console.log(`[MCP] Handling request for session: ${sessionId}`);
 
     // Get or create server instance
-    let server = servers.get(sessionId);
-    if (!server) {
+    let serverData = servers.get(sessionId);
+    if (!serverData) {
       console.log(
         `[MCP] Creating new server instance for session: ${sessionId}`
       );
-      server = createMCPServer();
-      servers.set(sessionId, server);
+      const server = createMCPServer();
+      serverData = { server, initialized: false };
+      servers.set(sessionId, serverData);
 
       // Clean up old sessions (keep only last 10)
       if (servers.size > 10) {
@@ -702,8 +703,14 @@ export default async function handler(
       sessionIdGenerator: () => sessionId,
     });
 
-    // Connect server to transport
-    await server.connect(transport);
+    // Connect server to transport if not already connected
+    if (!serverData.initialized) {
+      await serverData.server.connect(transport);
+      serverData.initialized = true;
+    } else {
+      // Reconnect for this request
+      await serverData.server.connect(transport);
+    }
 
     // Handle the request
     await transport.handleRequest(req, res, req.body);
