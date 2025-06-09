@@ -615,6 +615,27 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  // Simple health check endpoint
+  if (req.method === 'GET' && req.url === '/api/mcp') {
+    return res.status(200).json({
+      status: 'healthy',
+      serverInfo: {
+        name: 'project-plan-generator-http',
+        version: '1.0.0',
+        description:
+          'Generate comprehensive project plans from ideas using AI (HTTP version)',
+      },
+      endpoints: {
+        mcp: '/api/mcp',
+        methods: ['POST', 'OPTIONS'],
+      },
+      session: {
+        count: servers.size,
+        maxSessions: 10,
+      },
+    });
+  }
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -624,10 +645,18 @@ export default async function handler(
     );
     res.setHeader(
       'Access-Control-Allow-Headers',
-      'Content-Type, Authorization, X-Requested-With, mcp-session-id'
+      'Content-Type, Authorization, X-Requested-With, mcp-session-id, Accept'
     );
     res.status(200).end();
     return;
+  }
+
+  // Only allow POST for MCP protocol
+  if (req.method !== 'POST') {
+    return res.status(405).json({
+      error: 'Method not allowed',
+      allowedMethods: ['POST', 'OPTIONS', 'GET'],
+    });
   }
 
   // Set CORS headers for all responses
@@ -638,17 +667,34 @@ export default async function handler(
   );
   res.setHeader(
     'Access-Control-Allow-Headers',
-    'Content-Type, Authorization, X-Requested-With, mcp-session-id'
+    'Content-Type, Authorization, X-Requested-With, mcp-session-id, Accept'
   );
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
 
   try {
-    const sessionId = (req.headers['mcp-session-id'] as string) || 'default';
+    // Use a more flexible session ID approach
+    const sessionId =
+      (req.headers['mcp-session-id'] as string) ||
+      (req.headers['x-session-id'] as string) ||
+      `cursor-${Date.now()}`;
+
+    console.log(`[MCP] Handling request for session: ${sessionId}`);
 
     // Get or create server instance
     let server = servers.get(sessionId);
     if (!server) {
+      console.log(
+        `[MCP] Creating new server instance for session: ${sessionId}`
+      );
       server = createMCPServer();
       servers.set(sessionId, server);
+
+      // Clean up old sessions (keep only last 10)
+      if (servers.size > 10) {
+        const oldestSession = servers.keys().next().value;
+        console.log(`[MCP] Cleaning up old session: ${oldestSession}`);
+        servers.delete(oldestSession);
+      }
     }
 
     // Create transport for this request
@@ -668,6 +714,7 @@ export default async function handler(
       error: {
         code: -32603,
         message: 'Internal server error',
+        data: error instanceof Error ? error.message : String(error),
       },
       id: null,
     });
