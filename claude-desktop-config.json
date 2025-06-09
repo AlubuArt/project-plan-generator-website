@@ -1,0 +1,14 @@
+{
+    "mcpServers": {
+        "project-plan-generator": {
+            "command": "node",
+            "args": [
+                "dist/mcp-server.mjs"
+            ],
+            "env": {
+                "OPENAI_API_KEY": "<YOUR_OPENAI_API_KEY_HERE>",
+                "NEXT_PUBLIC_BASE_URL": "http://localhost:3000"
+            }
+        }
+    }
+}

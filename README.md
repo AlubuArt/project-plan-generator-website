@@ -10,11 +10,36 @@ Transform any idea into a comprehensive project plan in under 60 seconds. No sig
 - **Download as Markdown**: Export your plans as `.md` files
 - **No Sign-up Required**: Start using immediately
 - **Mobile Responsive**: Works perfectly on all devices
+- **🆕 MCP Integration**: API access for AI agents via Model Context Protocol
+
+## 🤖 Model Context Protocol (MCP) Support
+
+This application now supports MCP, allowing AI agents to generate project plans programmatically without using the web interface.
+
+### Available MCP Tools
+- **generate_project_plan**: Create comprehensive project plans from ideas
+- **validate_project_idea**: Validate ideas before generating plans  
+- **encode_plan_for_sharing**: Create shareable URLs for plans
+
+### Quick MCP Setup
+```bash
+# Build the MCP server
+npm run build-mcp
+
+# Test the integration
+npm run mcp-test
+
+# Run the server for AI agents
+npm run mcp-server
+```
+
+See [MCP_README.md](./MCP_README.md) for detailed MCP integration documentation.
 
 ## 🛠️ Tech Stack
 
 - **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS
 - **AI**: OpenAI GPT-4 API
+- **MCP**: Model Context Protocol SDK for AI agent integration
 - **Markdown**: Remark with GitHub Flavored Markdown support
 - **Compression**: Pako for gzip compression of shareable URLs
 - **Styling**: Tailwind CSS with Typography plugin
@@ -93,9 +118,16 @@ src/
 │   └── index.tsx              # Homepage
 ├── utils/
 │   ├── encoding.ts            # URL encoding/decoding utilities
-│   └── markdown.ts            # Markdown processing utilities
+│   ├── markdown.ts            # Markdown processing utilities
+│   └── security.ts            # Input validation and security
+├── mcp-server.ts              # MCP server for AI agents
+└── mcp-client-test.ts         # MCP test client
 └── styles/
     └── globals.css            # Global styles
+
+dist/                          # Compiled MCP components
+├── mcp-server.mjs
+└── mcp-client-test.mjs
 ```
 
 ## 🎨 Customization
@@ -104,6 +136,21 @@ src/
 - **AI Prompt**: Update the prompt in `src/pages/api/generate-plan.ts`
 - **Plan Structure**: Customize the generated plan format in the API route
 - **UI Components**: Modify components in `src/components/`
+- **MCP Tools**: Add new tools in `src/mcp-server.ts`
+
+## 🤖 AI Agent Integration
+
+With MCP support, AI agents can:
+- Generate project plans programmatically
+- Validate project ideas  
+- Create shareable plan URLs
+- Access template information and guidelines
+
+Perfect for:
+- Development workflow automation
+- Batch project plan generation
+- Integration with other AI tools
+- Custom AI assistants
 
 ## 📝 License
 
@@ -115,4 +162,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ---
 
-Built with ❤️ using Next.js and OpenAI 
+Built with ❤️ using Next.js, OpenAI, and Model Context Protocol 
