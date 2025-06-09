@@ -15,10 +15,37 @@ const ProjectPlanGenerator: React.FC<ProjectPlanGeneratorProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showCopySuccess, setShowCopySuccess] = useState(false);
+  const [showCliCopySuccess, setShowCliCopySuccess] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<
+    'next' | 'vercel-ai'
+  >('next');
+  const [projectName, setProjectName] = useState('my-project');
 
   const characterCount = idea.length;
   const isNearLimit = characterCount > 800;
   const isAtLimit = characterCount >= 1000;
+
+  // Generate CLI-compatible URLs and commands
+  const getCliUrl = () => {
+    if (!generatedPlan) return '';
+    const shareableUrl = createShareableUrl(
+      generatedPlan,
+      window.location.origin + window.location.pathname
+    );
+    // Extract the encoded part and create a raw API URL
+    const urlParts = shareableUrl.split('#/p=');
+    if (urlParts.length === 2) {
+      return `${window.location.origin}/api/plan/${urlParts[1]}`;
+    }
+    return '';
+  };
+
+  const getCliCommand = () => {
+    const url = getCliUrl();
+    if (!url) return '';
+
+    return `npx create-vibe-code-app ${projectName} ${url} --template ${selectedTemplate}`;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +71,10 @@ const ProjectPlanGenerator: React.FC<ProjectPlanGeneratorProps> = ({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ idea }),
+        body: JSON.stringify({
+          idea,
+          template: selectedTemplate,
+        }),
       });
 
       if (!response.ok) {
@@ -86,6 +116,19 @@ const ProjectPlanGenerator: React.FC<ProjectPlanGeneratorProps> = ({
     }
   };
 
+  const handleCopyCliCommand = async () => {
+    const command = getCliCommand();
+    if (!command) return;
+
+    try {
+      await copyToClipboard(command);
+      setShowCliCopySuccess(true);
+      setTimeout(() => setShowCliCopySuccess(false), 3000);
+    } catch (err) {
+      setError('Failed to copy CLI command');
+    }
+  };
+
   const handleDownload = () => {
     if (!generatedPlan) return;
     downloadMarkdownFile(generatedPlan);
@@ -95,6 +138,7 @@ const ProjectPlanGenerator: React.FC<ProjectPlanGeneratorProps> = ({
     setIdea('');
     setGeneratedPlan('');
     setError(null);
+    setProjectName('my-project');
     window.history.pushState({}, '', window.location.pathname);
   };
 
@@ -109,8 +153,76 @@ const ProjectPlanGenerator: React.FC<ProjectPlanGeneratorProps> = ({
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Get a comprehensive, structured project plan in under 60 seconds.
-              No sign-up required.
+              Use it directly with{' '}
+              <code className="px-2 py-1 bg-gray-100 rounded text-sm">
+                create-vibe-code-app
+              </code>{' '}
+              CLI tool.
             </p>
+          </div>
+
+          {/* Template Selection */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-blue-900 mb-4">
+              🚀 Choose Your Project Template
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <label className="relative">
+                <input
+                  type="radio"
+                  name="template"
+                  value="next"
+                  checked={selectedTemplate === 'next'}
+                  onChange={e => setSelectedTemplate(e.target.value as 'next')}
+                  className="sr-only"
+                />
+                <div
+                  className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    selectedTemplate === 'next'
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center space-x-2 mb-2">
+                    <span className="text-lg">📦</span>
+                    <span className="font-semibold">Next.js (Default)</span>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    Modern Next.js with TypeScript, Tailwind CSS, and AI
+                    configuration
+                  </p>
+                </div>
+              </label>
+
+              <label className="relative">
+                <input
+                  type="radio"
+                  name="template"
+                  value="vercel-ai"
+                  checked={selectedTemplate === 'vercel-ai'}
+                  onChange={e =>
+                    setSelectedTemplate(e.target.value as 'vercel-ai')
+                  }
+                  className="sr-only"
+                />
+                <div
+                  className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    selectedTemplate === 'vercel-ai'
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center space-x-2 mb-2">
+                    <span className="text-lg">🤖</span>
+                    <span className="font-semibold">Vercel AI</span>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    Next.js + Vercel AI SDK with chat interface and OpenAI
+                    integration
+                  </p>
+                </div>
+              </label>
+            </div>
           </div>
 
           {/* Input Form */}
@@ -246,11 +358,97 @@ const ProjectPlanGenerator: React.FC<ProjectPlanGeneratorProps> = ({
             </div>
           </div>
 
-          {/* Success Message */}
+          {/* CLI Integration Section */}
+          <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <span className="text-2xl">🚀</span>
+              <h3 className="text-lg font-semibold text-purple-900">
+                Create Project with CLI Tool
+              </h3>
+            </div>
+
+            <p className="text-purple-800 mb-4">
+              Use this plan directly with{' '}
+              <code className="px-2 py-1 bg-purple-100 rounded">
+                create-vibe-code-app
+              </code>{' '}
+              to instantly generate your project:
+            </p>
+
+            <div className="space-y-4">
+              {/* Project Name Input */}
+              <div>
+                <label className="block text-sm font-medium text-purple-700 mb-2">
+                  Project Name:
+                </label>
+                <input
+                  type="text"
+                  value={projectName}
+                  onChange={e =>
+                    setProjectName(
+                      e.target.value.replace(/[^a-zA-Z0-9-_]/g, '')
+                    )
+                  }
+                  placeholder="my-awesome-project"
+                  className="w-full md:w-64 px-3 py-2 border border-purple-300 rounded-md focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* CLI Command */}
+              <div>
+                <label className="block text-sm font-medium text-purple-700 mb-2">
+                  Command to run:
+                </label>
+                <div className="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                  <code>{getCliCommand()}</code>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <button
+                    onClick={handleCopyCliCommand}
+                    className="px-3 py-1 bg-purple-600 text-white text-sm rounded hover:bg-purple-700 transition-colors"
+                  >
+                    📋 Copy Command
+                  </button>
+                  <a
+                    href="https://www.npmjs.com/package/create-vibe-code-app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1 bg-orange-600 text-white text-sm rounded hover:bg-orange-700 transition-colors"
+                  >
+                    📚 CLI Documentation
+                  </a>
+                </div>
+              </div>
+
+              {/* Template Info */}
+              <div className="bg-white/50 p-3 rounded border">
+                <span className="text-sm text-purple-700">
+                  <strong>Selected Template:</strong>{' '}
+                  {selectedTemplate === 'next' ? '📦 Next.js' : '🤖 Vercel AI'}
+                  {selectedTemplate === 'vercel-ai' && (
+                    <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                      Requires OpenAI API Key
+                    </span>
+                  )}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Success Messages */}
           {showCopySuccess && (
             <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
               <p className="text-green-800">
                 ✅ Share link copied to clipboard!
+              </p>
+            </div>
+          )}
+
+          {showCliCopySuccess && (
+            <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+              <p className="text-purple-800">
+                ✅ CLI command copied to clipboard! Run it in your terminal to
+                create the project.
               </p>
             </div>
           )}

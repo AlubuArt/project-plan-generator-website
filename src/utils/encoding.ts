@@ -8,8 +8,10 @@ export function encodeProjectPlan(markdown: string): string {
     // Compress using gzip
     const compressed = pako.gzip(utf8Bytes);
 
-    // Convert to base64
-    const base64 = btoa(String.fromCharCode(...compressed));
+    // Convert to base64 - fix for TypeScript compilation
+    const base64 = btoa(
+      String.fromCharCode.apply(null, Array.from(compressed))
+    );
 
     // Make URL-safe
     return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
@@ -67,6 +69,16 @@ export function getProjectPlanFromUrl(): string | null {
     return decodeProjectPlan(match[1]);
   } catch (error) {
     console.error('Error parsing project plan from URL:', error);
+    return null;
+  }
+}
+
+// Helper function for the API endpoint
+export function decompressAndDecode(encodedData: string): string | null {
+  try {
+    return decodeProjectPlan(encodedData);
+  } catch (error) {
+    console.error('Failed to decompress and decode:', error);
     return null;
   }
 }
