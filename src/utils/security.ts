@@ -10,7 +10,7 @@ const rateLimitStorage = new Map<
 setInterval(
   () => {
     const now = Date.now();
-    for (const [ip, data] of rateLimitStorage.entries()) {
+    for (const [ip, data] of Array.from(rateLimitStorage.entries())) {
       if (now > data.resetTime) {
         rateLimitStorage.delete(ip);
       }

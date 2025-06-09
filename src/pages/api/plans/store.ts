@@ -19,7 +19,7 @@ const PLAN_EXPIRY = 30 * 24 * 60 * 60 * 1000; // 30 days
 
 setInterval(() => {
   const now = Date.now();
-  for (const [id, plan] of planStorage.entries()) {
+  for (const [id, plan] of Array.from(planStorage.entries())) {
     if (now - plan.createdAt > PLAN_EXPIRY) {
       planStorage.delete(id);
     }
