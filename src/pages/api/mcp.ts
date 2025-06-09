@@ -692,9 +692,12 @@ export default async function handler(
 
       // Clean up old sessions (keep only last 10)
       if (servers.size > 10) {
-        const oldestSession = servers.keys().next().value;
-        console.log(`[MCP] Cleaning up old session: ${oldestSession}`);
-        servers.delete(oldestSession);
+        const oldestSessionIterator = servers.keys().next();
+        if (!oldestSessionIterator.done) {
+          const oldestSession = oldestSessionIterator.value;
+          console.log(`[MCP] Cleaning up old session: ${oldestSession}`);
+          servers.delete(oldestSession);
+        }
       }
     }
 
