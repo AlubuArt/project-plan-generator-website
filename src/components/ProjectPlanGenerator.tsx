@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import MarkdownViewer from './MarkdownViewer';
-import { createShareableUrl } from '@/utils/encoding';
+import {
+  createShortShareableUrl,
+  getProjectPlanFromShortUrl,
+} from '@/utils/encoding';
 import { downloadMarkdownFile, copyToClipboard } from '@/utils/markdown';
 
 interface ProjectPlanGeneratorProps {
@@ -20,6 +23,10 @@ const ProjectPlanGenerator: React.FC<ProjectPlanGeneratorProps> = ({
     'next' | 'vercel-ai'
   >('next');
   const [projectName, setProjectName] = useState('my-project');
+  const [currentPlanId, setCurrentPlanId] = useState<string | null>(null);
+  const [remainingRequests, setRemainingRequests] = useState<number | null>(
+    null
+  );
 
   const characterCount = idea.length;
   const isNearLimit = characterCount > 800;
@@ -27,17 +34,8 @@ const ProjectPlanGenerator: React.FC<ProjectPlanGeneratorProps> = ({
 
   // Generate CLI-compatible URLs and commands
   const getCliUrl = () => {
-    if (!generatedPlan) return '';
-    const shareableUrl = createShareableUrl(
-      generatedPlan,
-      window.location.origin + window.location.pathname
-    );
-    // Extract the encoded part and create a raw API URL
-    const urlParts = shareableUrl.split('#/p=');
-    if (urlParts.length === 2) {
-      return `${window.location.origin}/api/plan/${urlParts[1]}`;
-    }
-    return '';
+    if (!currentPlanId) return '';
+    return `${window.location.origin}/api/plans/${currentPlanId}`;
   };
 
   const getCliCommand = () => {
@@ -79,18 +77,43 @@ const ProjectPlanGenerator: React.FC<ProjectPlanGeneratorProps> = ({
 
       if (!response.ok) {
         const errorData = await response.json();
+
+        // Handle rate limiting specifically
+        if (response.status === 429) {
+          const resetTime = errorData.resetTime
+            ? new Date(errorData.resetTime)
+            : new Date();
+          throw new Error(
+            `Rate limit exceeded. You can make ${errorData.limit || 'more'} requests per hour. ` +
+              `Try again after ${resetTime.toLocaleTimeString()}.`
+          );
+        }
+
         throw new Error(errorData.error || 'Failed to generate plan');
       }
 
       const data = await response.json();
       setGeneratedPlan(data.plan);
+      setRemainingRequests(data.remainingRequests);
 
-      // Update URL with encoded plan
-      const shareableUrl = createShareableUrl(
-        data.plan,
-        window.location.origin + window.location.pathname
-      );
-      window.history.pushState({}, '', shareableUrl);
+      // Create short URL and update browser URL
+      try {
+        const shortUrl = await createShortShareableUrl(
+          data.plan,
+          window.location.origin + window.location.pathname
+        );
+
+        // Extract plan ID from short URL
+        const match = shortUrl.match(/#\/plan\/(.+)/);
+        if (match) {
+          setCurrentPlanId(match[1]);
+        }
+
+        window.history.pushState({}, '', shortUrl);
+      } catch (urlError) {
+        console.error('Failed to create short URL:', urlError);
+        // Continue without URL update if short URL creation fails
+      }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'An unexpected error occurred'
@@ -104,7 +127,7 @@ const ProjectPlanGenerator: React.FC<ProjectPlanGeneratorProps> = ({
     if (!generatedPlan) return;
 
     try {
-      const shareableUrl = createShareableUrl(
+      const shareableUrl = await createShortShareableUrl(
         generatedPlan,
         window.location.origin + window.location.pathname
       );
@@ -112,7 +135,11 @@ const ProjectPlanGenerator: React.FC<ProjectPlanGeneratorProps> = ({
       setShowCopySuccess(true);
       setTimeout(() => setShowCopySuccess(false), 3000);
     } catch (err) {
-      setError('Failed to copy link to clipboard');
+      const errorMessage =
+        err instanceof Error && err.message.includes('429')
+          ? 'Rate limit exceeded for sharing. Please try again later.'
+          : 'Failed to copy link to clipboard';
+      setError(errorMessage);
     }
   };
 
@@ -139,8 +166,33 @@ const ProjectPlanGenerator: React.FC<ProjectPlanGeneratorProps> = ({
     setGeneratedPlan('');
     setError(null);
     setProjectName('my-project');
+    setCurrentPlanId(null);
     window.history.pushState({}, '', window.location.pathname);
   };
+
+  // Load plan from URL on component mount
+  useEffect(() => {
+    const loadPlanFromUrl = async () => {
+      if (!initialPlan) {
+        try {
+          const planFromUrl = await getProjectPlanFromShortUrl();
+          if (planFromUrl) {
+            setGeneratedPlan(planFromUrl);
+            // Extract plan ID from current URL
+            const hash = window.location.hash;
+            const match = hash.match(/#\/plan\/(.+)/);
+            if (match) {
+              setCurrentPlanId(match[1]);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to load plan from URL:', error);
+        }
+      }
+    };
+
+    loadPlanFromUrl();
+  }, [initialPlan]);
 
   return (
     <div className="max-w-5xl mx-auto p-6">
@@ -346,12 +398,19 @@ const ProjectPlanGenerator: React.FC<ProjectPlanGeneratorProps> = ({
                       />
                     </svg>
                   </div>
-                  <label
-                    htmlFor="idea"
-                    className="text-xl font-bold text-gray-900"
-                  >
-                    Describe your project idea
-                  </label>
+                  <div className="flex-1">
+                    <label
+                      htmlFor="idea"
+                      className="text-xl font-bold text-gray-900"
+                    >
+                      Describe your project idea
+                    </label>
+                    {remainingRequests !== null && (
+                      <p className="text-sm text-gray-600 mt-1">
+                        {remainingRequests} AI generations remaining this hour
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 <div className="relative">

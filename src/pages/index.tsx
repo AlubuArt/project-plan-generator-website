@@ -1,17 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import ProjectPlanGenerator from '@/components/ProjectPlanGenerator';
-import { getProjectPlanFromUrl } from '@/utils/encoding';
+import { getProjectPlanFromShortUrl } from '@/utils/encoding';
 
 const HomePage: React.FC = () => {
   const [initialPlan, setInitialPlan] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if there's a shared plan in the URL
-    const planFromUrl = getProjectPlanFromUrl();
-    setInitialPlan(planFromUrl || undefined);
-    setIsLoading(false);
+    // Check if there's a shared plan in the URL (both old and new formats)
+    const loadSharedPlan = async () => {
+      try {
+        const planFromUrl = await getProjectPlanFromShortUrl();
+        setInitialPlan(planFromUrl || undefined);
+      } catch (error) {
+        console.error('Error loading shared plan:', error);
+        setInitialPlan(undefined);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSharedPlan();
   }, []);
 
   if (isLoading) {

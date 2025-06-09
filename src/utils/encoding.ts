@@ -1,5 +1,58 @@
 import pako from 'pako';
 
+// New short URL functions
+export async function createShortShareableUrl(
+  markdown: string,
+  baseUrl: string = ''
+): Promise<string> {
+  try {
+    const response = await fetch('/api/plans/store', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ content: markdown }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to store plan');
+    }
+
+    const { id } = await response.json();
+    return `${baseUrl}#/plan/${id}`;
+  } catch (error) {
+    console.error('Error creating short URL:', error);
+    // Fallback to old encoding method
+    return createShareableUrl(markdown, baseUrl);
+  }
+}
+
+export async function getProjectPlanFromShortUrl(): Promise<string | null> {
+  if (typeof window === 'undefined') return null;
+
+  const hash = window.location.hash;
+
+  // Check for new short URL format
+  const shortMatch = hash.match(/#\/plan\/(.+)/);
+  if (shortMatch) {
+    try {
+      const response = await fetch(`/api/plans/${shortMatch[1]}`);
+      if (!response.ok) {
+        throw new Error('Plan not found');
+      }
+      const { content } = await response.json();
+      return content;
+    } catch (error) {
+      console.error('Error fetching plan from short URL:', error);
+      return null;
+    }
+  }
+
+  // Fallback to old URL format
+  return getProjectPlanFromUrl();
+}
+
+// Original encoding functions (kept for backwards compatibility and CLI)
 export function encodeProjectPlan(markdown: string): string {
   try {
     // Convert string to Uint8Array

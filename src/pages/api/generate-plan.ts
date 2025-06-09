@@ -1,5 +1,11 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import OpenAI from 'openai';
+import {
+  checkRateLimit,
+  validateProjectIdeaInput,
+  RATE_LIMITS,
+  getClientIP,
+} from '@/utils/security';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -108,18 +114,39 @@ export default async function handler(
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Check rate limiting first
+  const rateLimit = checkRateLimit(req, RATE_LIMITS.AI_GENERATION);
+
+  if (!rateLimit.allowed) {
+    const resetDate = new Date(rateLimit.resetTime).toISOString();
+    return res.status(429).json({
+      error: 'Rate limit exceeded. Too many AI generation requests.',
+      resetTime: resetDate,
+      limit: RATE_LIMITS.AI_GENERATION.maxRequests,
+    });
+  }
+
+  // Set rate limit headers
+  res.setHeader('X-RateLimit-Limit', RATE_LIMITS.AI_GENERATION.maxRequests);
+  res.setHeader('X-RateLimit-Remaining', rateLimit.remaining);
+  res.setHeader(
+    'X-RateLimit-Reset',
+    new Date(rateLimit.resetTime).toISOString()
+  );
+
   const { idea, template = 'next' } = req.body;
 
+  // Validate input
   if (!idea || typeof idea !== 'string') {
     return res
       .status(400)
-      .json({ error: 'Idea is required and must be a string' });
+      .json({ error: 'Project idea is required and must be a string' });
   }
 
-  if (idea.length < 10 || idea.length > 1000) {
-    return res
-      .status(400)
-      .json({ error: 'Idea must be between 10 and 1000 characters' });
+  // Enhanced input validation
+  const validation = validateProjectIdeaInput(idea);
+  if (!validation.valid) {
+    return res.status(400).json({ error: validation.error });
   }
 
   if (template && !['next', 'vercel-ai'].includes(template)) {
@@ -129,8 +156,15 @@ export default async function handler(
   }
 
   if (!process.env.OPENAI_API_KEY) {
-    return res.status(500).json({ error: 'OpenAI API key not configured' });
+    return res
+      .status(500)
+      .json({ error: 'AI service temporarily unavailable' });
   }
+
+  const clientIP = getClientIP(req);
+  console.log(
+    `AI Generation request from IP: ${clientIP}, idea length: ${idea.length}`
+  );
 
   try {
     const prompt = getTemplatePrompt(template as 'next' | 'vercel-ai');
@@ -145,6 +179,9 @@ export default async function handler(
       ],
       max_tokens: 2000,
       temperature: 0.7,
+      // Additional safety parameters
+      frequency_penalty: 0.3,
+      presence_penalty: 0.3,
     });
 
     const plan = completion.choices[0]?.message?.content;
@@ -153,11 +190,25 @@ export default async function handler(
       return res.status(500).json({ error: 'Failed to generate plan' });
     }
 
-    res.status(200).json({ plan, template });
+    // Log successful generation (without sensitive data)
+    console.log(
+      `Successfully generated plan for IP: ${clientIP}, template: ${template}`
+    );
+
+    res.status(200).json({
+      plan,
+      template,
+      remainingRequests: rateLimit.remaining,
+    });
   } catch (error) {
     console.error('OpenAI API error:', error);
-    res
-      .status(500)
-      .json({ error: 'Failed to generate plan. Please try again.' });
+
+    // Don't expose internal errors to client
+    const errorMessage =
+      error instanceof Error && error.message.includes('rate_limit')
+        ? 'AI service is currently busy. Please try again later.'
+        : 'Failed to generate plan. Please try again.';
+
+    res.status(500).json({ error: errorMessage });
   }
 }
