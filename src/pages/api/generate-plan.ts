@@ -283,7 +283,7 @@ export default async function handler(
         presence_penalty: 0.3,
       });
 
-      plan = completion.choices[0]?.message?.content;
+      plan = completion.choices[0]?.message?.content || '';
 
       if (!plan) {
         return res.status(500).json({ error: 'Failed to generate plan' });
