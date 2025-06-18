@@ -27,6 +27,8 @@ const ProjectPlanGenerator: React.FC<ProjectPlanGeneratorProps> = ({
   const [remainingRequests, setRemainingRequests] = useState<number | null>(
     null
   );
+  const [apiMode, setApiMode] = useState<'openai' | 'external'>('openai');
+  const [generationMethod, setGenerationMethod] = useState<string | null>(null);
 
   const characterCount = idea.length;
   const isNearLimit = characterCount > 800;
@@ -72,6 +74,7 @@ const ProjectPlanGenerator: React.FC<ProjectPlanGeneratorProps> = ({
         body: JSON.stringify({
           idea,
           template: selectedTemplate,
+          apiMode: apiMode,
         }),
       });
 
@@ -95,6 +98,7 @@ const ProjectPlanGenerator: React.FC<ProjectPlanGeneratorProps> = ({
       const data = await response.json();
       setGeneratedPlan(data.plan);
       setRemainingRequests(data.remainingRequests);
+      setGenerationMethod(data.generationMethod);
 
       // Create short URL and update browser URL
       try {
@@ -495,6 +499,181 @@ const ProjectPlanGenerator: React.FC<ProjectPlanGeneratorProps> = ({
               </div>
             )}
 
+            {/* API Mode Selection */}
+            <div className="bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-8 shadow-xl">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl">
+                  <svg
+                    className="w-6 h-6 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-gray-900">
+                    AI Service Selection
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Choose which AI service to use for plan generation
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label className="group cursor-pointer">
+                  <input
+                    type="radio"
+                    name="apiMode"
+                    value="openai"
+                    checked={apiMode === 'openai'}
+                    onChange={e => setApiMode(e.target.value as 'openai')}
+                    className="sr-only"
+                  />
+                  <div
+                    className={`relative p-6 border-2 rounded-2xl transition-all duration-300 ${
+                      apiMode === 'openai'
+                        ? 'border-green-500 bg-gradient-to-br from-green-50 to-green-100 shadow-lg shadow-green-500/25'
+                        : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 bg-gradient-to-br from-green-500 to-green-600 rounded-lg">
+                        <span className="text-lg">🤖</span>
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-gray-900">
+                          OpenAI
+                        </h4>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          <span className="text-sm text-green-600 font-medium">
+                            Production Ready
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      Uses OpenAI's GPT-4 model for high-quality, reliable
+                      project plan generation.
+                    </p>
+                    {apiMode === 'openai' && (
+                      <div className="absolute top-3 right-3">
+                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                          <svg
+                            className="w-4 h-4 text-white"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </label>
+
+                <label className="group cursor-pointer">
+                  <input
+                    type="radio"
+                    name="apiMode"
+                    value="external"
+                    checked={apiMode === 'external'}
+                    onChange={e => setApiMode(e.target.value as 'external')}
+                    className="sr-only"
+                  />
+                  <div
+                    className={`relative p-6 border-2 rounded-2xl transition-all duration-300 ${
+                      apiMode === 'external'
+                        ? 'border-orange-500 bg-gradient-to-br from-orange-50 to-orange-100 shadow-lg shadow-orange-500/25'
+                        : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg">
+                        <span className="text-lg">🛠️</span>
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-gray-900">
+                          External API
+                        </h4>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                          <span className="text-sm text-orange-600 font-medium">
+                            Testing Mode
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      Uses your custom external planning service on
+                      127.0.0.1:8000 for testing.
+                    </p>
+                    {apiMode === 'external' && (
+                      <div className="absolute top-3 right-3">
+                        <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
+                          <svg
+                            className="w-4 h-4 text-white"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </label>
+              </div>
+
+              {apiMode === 'external' && (
+                <div className="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-xl">
+                  <div className="flex items-start gap-3">
+                    <svg
+                      className="w-5 h-5 text-orange-600 mt-0.5"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <div className="text-sm text-orange-800">
+                      <p className="font-medium mb-1">External API Mode</p>
+                      <p>
+                        Make sure your external planning service is running on{' '}
+                        <code className="px-2 py-1 bg-orange-100 rounded text-orange-900 font-mono">
+                          127.0.0.1:8000
+                        </code>{' '}
+                        before generating a plan.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <button
               type="submit"
               disabled={isLoading || !idea.trim() || idea.length < 20}
@@ -503,7 +682,11 @@ const ProjectPlanGenerator: React.FC<ProjectPlanGeneratorProps> = ({
               {isLoading ? (
                 <div className="flex items-center justify-center gap-3">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-                  <span>Generating your project plan...</span>
+                  <span>
+                    Generating your project plan
+                    {apiMode === 'external' ? ' (External API)' : ' (OpenAI)'}
+                    ...
+                  </span>
                 </div>
               ) : (
                 <div className="flex items-center justify-center gap-3">
@@ -520,7 +703,8 @@ const ProjectPlanGenerator: React.FC<ProjectPlanGeneratorProps> = ({
                       d="M13 10V3L4 14h7v7l9-11h-7z"
                     />
                   </svg>
-                  Generate Project Plan
+                  Generate Project Plan{' '}
+                  {apiMode === 'external' ? '(External API)' : '(OpenAI)'}
                 </div>
               )}
             </button>
@@ -530,9 +714,27 @@ const ProjectPlanGenerator: React.FC<ProjectPlanGeneratorProps> = ({
         <div className="space-y-8">
           {/* Modern Action Buttons */}
           <div className="flex flex-wrap gap-4 justify-between items-center bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-2xl p-6 shadow-xl">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-blue-900 bg-clip-text text-transparent">
-              Your Project Plan
-            </h1>
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-blue-900 bg-clip-text text-transparent">
+                Your Project Plan
+              </h1>
+              {generationMethod && (
+                <div className="flex items-center gap-2 mt-2">
+                  <div
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      generationMethod === 'external'
+                        ? 'bg-orange-100 text-orange-700'
+                        : 'bg-green-100 text-green-700'
+                    }`}
+                  >
+                    Generated via{' '}
+                    {generationMethod === 'external'
+                      ? 'External API'
+                      : 'OpenAI'}
+                  </div>
+                </div>
+              )}
+            </div>
             <div className="flex flex-wrap gap-3">
               <button
                 onClick={handleCopyLink}
