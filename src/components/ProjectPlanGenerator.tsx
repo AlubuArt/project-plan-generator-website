@@ -561,7 +561,7 @@ const ProjectPlanGenerator: React.FC<ProjectPlanGeneratorProps> = ({
                       </div>
                     </div>
                     <p className="text-gray-600 text-sm leading-relaxed">
-                      Uses OpenAI's GPT-4 model for high-quality, reliable
+                      Uses OpenAI&apos;s GPT-4 model for high-quality, reliable
                       project plan generation.
                     </p>
                     {apiMode === 'openai' && (
